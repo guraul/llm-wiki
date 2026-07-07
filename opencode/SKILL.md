@@ -134,25 +134,27 @@ created: YYYY-MM-DD
 
 当用户说"导入"或"添加到 wiki"时执行：
 
+> **IMPORTANT**：以下步骤必须全部执行，缺一不可。每一步完成后必须确认结果，不可跳过。
+
 ### 步骤 0：确认 vault 路径
 
 按"获取 vault 路径"流程确认并设置变量 `$VAULT`。
 
-### 步骤 1：读取文件
+### 步骤 1：读取文件（MUST）
 
 - 如果用户指定文件：读取 `$VAULT/raw/inbox/{指定文件}`
 - 如果用户说"导入所有"：使用 `ls $VAULT/raw/inbox/` 列出所有文件，逐一处理
 - 支持格式：`.md, .txt, .pdf, .html, .json, .csv`
 - 所有路径前面都要加 `$VAULT/`
 
-### 步骤 2：创建来源摘要页
+### 步骤 2：创建来源摘要页（MUST）
 
 - 在 `$VAULT/wiki/sources/` 创建 `source-{关键词}.md`
 - 内容包括：标题、来源、核心内容摘要、关键观点
 - 添加 frontmatter（tags, source, date, url）
 - 底部添加：`## 来源\n- 原始文件：[[raw/inbox/xxx.md]]`
 
-### 步骤 3：提取并创建概念/实体页
+### 步骤 3：提取并创建概念/实体页（MUST）
 
 分析内容，提取：
 - **概念**：方法论、技术原理、设计模式等抽象概念
@@ -162,7 +164,7 @@ created: YYYY-MM-DD
 - 如果 `$VAULT/wiki/concepts/{概念}.md` 或 `$VAULT/wiki/entities/{实体}.md` 已存在：更新内容（追加新观点，不覆盖）
 - 如果不存在：创建新页面，包含定义、关键点、与相关概念的关系
 
-### 步骤 4：建立交叉引用
+### 步骤 4：建立交叉引用（MUST）
 
 在创建/更新页面时：
 - 使用 `[[wikilink]]` 链接到相关页面
@@ -174,9 +176,9 @@ created: YYYY-MM-DD
 - **矛盾观点**：不同资料的冲突观点 → 标注"矛盾：来源A认为...，来源B认为..."
 - **补充关系**：新资料补充已有概念 → 更新概念页，追加内容
 
-### 步骤 5：更新 index.md
+### 步骤 5：更新 index.md（MUST）
 
-读取 `$VAULT/wiki/index.md`，更新目录：
+读取 `$VAULT/wiki/index.md`，按类别追加新条目。如果该条目已存在则跳过。
 
 ```markdown
 # Wiki Index
@@ -202,9 +204,7 @@ created: YYYY-MM-DD
 - ...
 ```
 
-按类别组织，每条列出页面链接和简短描述。
-
-### 步骤 6：记录 log.md
+### 步骤 6：记录 log.md（MUST）
 
 在 `$VAULT/log.md` 追加：
 
@@ -216,7 +216,7 @@ created: YYYY-MM-DD
 - 建立交叉引用：N 个
 ```
 
-### 步骤 7：移动文件
+### 步骤 7：移动文件（MUST）
 
 将处理完成的文件从 `$VAULT/raw/inbox/` 移动到 `$VAULT/raw/processed/`：
 
@@ -225,6 +225,23 @@ mv "$VAULT/raw/inbox/{文件名}" "$VAULT/raw/processed/"
 ```
 
 **注意**：如果用户指定了特定文件，只移动该文件。如果是批量处理，逐个移动。
+
+### 步骤 8：校验（MUST）
+
+执行以下检查，确认所有步骤已完成：
+
+```bash
+# 检查来源摘要页是否存在
+ls "$VAULT/wiki/sources/source-{关键词}.md"
+# 检查 index.md 是否包含新条目
+grep "source-{关键词}" "$VAULT/wiki/index.md"
+# 检查 log.md 是否有本次记录
+tail -5 "$VAULT/log.md"
+# 确认 inbox 文件已移走
+ls "$VAULT/raw/inbox/{文件名}" 2>/dev/null && echo "ERROR: 文件未移动" || echo "OK: 已移走"
+```
+
+如果校验失败，必须修正错误后才能告知用户完成。
 
 ## 查询流程（Query）
 
