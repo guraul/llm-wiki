@@ -276,25 +276,22 @@ ls "$VAULT/raw/inbox/{文件名}" 2>/dev/null && echo "ERROR: 文件未移动" |
 
 按"获取 vault 路径"流程确认。
 
-### 步骤 1：定位相关页面
+### 步骤 1：全文搜索定位
 
-使用 Bash tool：`ls "$VAULT/wiki/" "$VAULT/wiki/concepts/" "$VAULT/wiki/entities/" "$VAULT/wiki/sources/"`
-
-然后读取 `$VAULT/wiki/index.md`，根据问题关键词定位相关页面类别。
+调用 `wiki-query` MCP server 的 `search_wiki` 工具搜索用户问题中的关键词，获取最相关的 5-10 个结果及其摘要。
 
 ### 步骤 2：读取相关页面
 
-根据 index.md 的指引，读取最相关的 3-5 个页面：
-- 如果问题涉及具体概念 → 读取 `$VAULT/wiki/concepts/{概念}.md`
-- 如果问题涉及具体实体 → 读取 `$VAULT/wiki/entities/{实体}.md`
-- 如果问题需要对比 → 读取多个相关页面
+根据搜索结果中的文件路径，读取最相关的 3-5 个页面（优先选中高分的）：
+- 使用 Read tool 读取完整内容
+- 如果搜索结果不足，再读 `$VAULT/wiki/index.md` 补查
 
 **缓存层级**：
 - L1（最快）：Skill 指令（本文件）
-- L2：index.md（目录定位）
+- L2：MCP 全文搜索（`search_wiki`）
 - L3：具体页面（详细内容）
 
-优先读 L2 定位，再深入 L3。
+优先走 L1 → L2 定位，再深入 L3。
 
 ### 步骤 3：综合回答
 

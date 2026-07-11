@@ -43,13 +43,44 @@ LLM_WIKI_VAULT="/path/to/your/obsidian/vault"
 
 ## 用法
 
-在 vault 目录中运行 AI 工具，然后说：
+### 前提：启动 MCP 搜索服务
+
+查询功能依赖 MCP 服务器 `llm-wiki-mcp` 提供全文检索。安装：
+
+```bash
+# 1. 克隆
+git clone git@github.com:guraul/llm-wiki-mcp.git ~/llm-wiki-mcp
+
+# 2. 安装依赖（需 Node.js 20+）
+cd ~/llm-wiki-mcp
+pnpm install
+pnpm build
+```
+
+注册到 opencode，编辑 `~/.config/opencode/opencode.json`：
+
+```json
+{
+  "mcp": {
+    "wiki-query": {
+      "type": "local",
+      "command": ["node", "/path/to/llm-wiki-mcp/dist/index.js", "--vault-path", "/path/to/your/vault"]
+    }
+  }
+}
+```
+
+重启 opencode 后生效。
+
+### 日常使用
+
+在 vault 目录中运行 opencode，然后说：
 
 | 命令 | 功能 |
 |------|------|
 | "导入 raw/inbox/article.md" | 导入单篇资料到 wiki |
 | "导入 raw/inbox 中所有文件到 wiki" | 批量导入 |
-| "查询 wiki 中关于 xxx 的内容" | 查询已入库知识 |
+| "查询 wiki 中关于 xxx 的内容" | 全文检索已入库知识 |
 | "检查 wiki" | 健康检查（孤立页面、断链等） |
 
 ## 目录结构
