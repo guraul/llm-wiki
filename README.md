@@ -1,6 +1,6 @@
 # LLM Wiki Skill
 
-基于 Karpathy LLM Wiki 思想的知识库管理技能。自动将原始资料提取、结构化、建立交叉引用，存入 Obsidian vault。
+基于 Karpathy LLM Wiki 思想的知识库管理技能。自动将原始资料提取、规划、重编译、建立交叉引用，存入 Obsidian vault。
 
 ## 支持的 AI 工具
 
@@ -97,6 +97,10 @@ vault/
 │   ├── sources/                 # 来源摘要页
 │   ├── concepts/                # 概念页
 │   ├── entities/                # 实体/项目页
+│   ├── decisions/               # 架构/产品/技术决策
+│   ├── patterns/                # 可复用方案、工作流、设计模式
+│   ├── problems/                # 问题、限制、踩坑、风险
+│   ├── procedures/              # 操作步骤、迁移流程、配置清单
 │   ├── outputs/                 # 查询答案存档
 │   └── synthesis/               # 综合分析
 └── log.md                       # 操作日志
@@ -106,4 +110,19 @@ vault/
 
 > **The Model IS the Agent. The Code is the Harness.**
 
-传统 RAG 每次查询都重新检索，知识不积累。LLM Wiki 让知识持久化、结构化、复利增长——每添加一份资料，自动更新相关页面、建立交叉引用、标注矛盾观点。
+传统 RAG 每次查询都重新检索，知识不积累。LLM Wiki 让知识持久化、结构化、复利增长。
+
+本项目的核心流程是：
+
+```text
+Raw document
+  -> Source summary
+  -> Knowledge planner
+  -> Knowledge compiler
+  -> Link update
+  -> Wiki rewrite
+```
+
+每添加一份资料，skill 会先规划需要创建、重写、链接或标注冲突的页面，再把新证据编译进已有 wiki。更新页面时不盲目追加，而是重写受影响页面，保留有价值旧内容，合并重复信息，标注过时和低置信度内容。
+
+更多设计见 [docs/prompt-pipeline.md](docs/prompt-pipeline.md)。
