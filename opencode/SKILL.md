@@ -524,6 +524,58 @@ ls "$VAULT/wiki/"*.md "$VAULT/wiki/concepts/"*.md "$VAULT/wiki/entities/"*.md "$
 3. 根据定位读 L3（具体页面）
 4. 不需要遍历所有页面
 
+## 辅助脚本
+
+skill 自带 3 个 Python 脚本（位于 `scripts/` 目录），用于批量操作，避免手工逐文件处理。
+
+### 依赖
+
+```bash
+# 需要 Python 3 + PyYAML
+/Users/gubin/.workbuddy/binaries/python/envs/default/bin/pip install pyyaml
+```
+
+### 1. llm-wiki-lint.py — 健康检查
+
+**用途**：扫描 vault 所有页面，按 8 项规则检查（孤立页面、缺失引用、矛盾、过时、空页、重复概念、低证据、缺少 knowledge_type）。
+
+**调用**：
+```bash
+/Users/gubin/.workbuddy/binaries/python/envs/default/bin/python3 scripts/llm-wiki-lint.py
+```
+
+**何时用**：用户说"检查 wiki"或"lint wiki"时。比手工 grep 更全面、更快。
+
+### 2. llm-wiki-classify.py — inbox 分类
+
+**用途**：扫描 `$VAULT/raw/inbox/` 所有文件，按关键词模式分为"值得入库"和"不值得入库"两类，输出完整分类报告。
+
+**调用**：
+```bash
+/Users/gubin/.workbuddy/binaries/python/envs/default/bin/python3 scripts/llm-wiki-classify.py
+```
+
+**何时用**：inbox 文件较多（>10 个）时，先跑分类，再决定哪些 ingest、哪些跳过。
+
+**输出**：终端打印分类结果。建议把报告保存到 `$VAULT/wiki/outputs/inbox-classification-{日期}.md`。
+
+### 3. llm-wiki-backfill.py — 批量回填字段
+
+**用途**：给 durable 页面（concepts/entities/decisions/patterns/problems/procedures/synthesis）批量补充 `knowledge_type`、`evidence`、`confidence` 字段。遵守 ADR-001 安全写入规则（YAML parser + atomic write + 最小 diff）。
+
+**调用**：
+```bash
+/Users/gubin/.workbuddy/binaries/python/envs/default/bin/python3 scripts/llm-wiki-backfill.py
+```
+
+**何时用**：skill 升级引入新 frontmatter 字段后，回填旧数据。
+
+**注意**：
+- 脚本会在 `$VAULT/.lint-backup-{日期}/` 创建原文备份
+- 用 PyYAML 解析验证，不用字符串替换
+- atomic write（先写 `.tmp` 再 `mv`）
+- 只追加新字段，不重排已有 frontmatter（保证 git diff 可审查）
+
 ## 支持的文件格式
 
 | 格式 | 扩展名 | 处理方式 |
