@@ -571,6 +571,7 @@ ls "$VAULT/wiki/"*.md "$VAULT/wiki/concepts/"*.md "$VAULT/wiki/entities/"*.md "$
 6. **保持简洁**：摘要页聚焦核心观点，不过度展开
 7. **wikilink 优先**：使用 Obsidian 的 `[[wikilink]]` 格式
 8. **移动而非删除**：处理后移动到 `$VAULT/raw/processed/`，保留原始资料
+9. **安全写入**：frontmatter 必须用 YAML parser 处理，禁止字符串替换；写入前保留原文，尽量 atomic write（先写 `.tmp` 再 `mv`）；单次改动保证 git diff 可审查（详见 `docs/adr/001-obsidian-access-strategy.md`）
 
 ## 使用边界
 
